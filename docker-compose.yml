@@ -1,0 +1,91 @@
+services:
+  node:
+    image: node
+    user: node
+    working_dir: /home/node
+    command: tail -f /dev/null
+    ports:
+      - ${NODE_START_PORT:-3000}-${NODE_END_PORT:-3009}:${NODE_START_PORT:-3000}-${NODE_END_PORT:-3009}
+    volumes:
+      - ../apecommerce:/home/node/apecommerce
+
+  mysql:
+    image: mariadb
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: ape
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: ape
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ':9001'
+    ports:
+      - ${MINIO_PORT:-9000}:9000
+      - ${MINIO_CONSOLE_PORT:-3012}:9001
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: password
+
+  redis:
+    image: redis
+    ports:
+      - ${REDIS_PORT:-6379}:6379
+    volumes:
+      - redis-data:/data
+
+  redoc:
+    image: redocly/redoc
+    ports:
+      - ${REDOC_PORT:-3010}:80
+    environment:
+      SPEC_URL: http://localhost:${NODE_API_PORT:-3000}/doc
+      REDOC_OPTIONS: >-
+        disable-search=true
+        expand-responses=false
+        schema-expansion-level=all
+        json-sample-expand-level=all
+        theme={"breakpoints":{"small":"60rem","medium":"90rem","large":"120rem"},"sidebar":{"width":"400px"}}
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver
+    ports:
+      - ${CLOUDBEAVER_PORT:-3011}:8978
+    volumes:
+      - cloudbeaver-data:/opt/cloudbeaver/workspace
+
+  redis-insight:
+    image: redislabs/redisinsight
+    ports:
+      - ${REDIS_INSIGHT_PORT:-3013}:8001
+    volumes:
+      - redis-insight-data:/db
+
+  bullmq-dashboard:
+    image: mattsyms/bull-board
+    ports:
+      - ${BULLMQ_DASHBOARD_PORT:-3014}:3000
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_PREFIX: ''
+      QUEUE_LIST: ''
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - ${MAILDEV_SMTP_PORT:-1025}:1025
+      - ${MAILDEV_UI_PORT:-3015}:1080
+
+volumes:
+  mysql-data:
+  minio-data:
+  redis-data:
+  cloudbeaver-data:
+  redis-insight-data:
