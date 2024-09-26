@@ -16,21 +16,13 @@ Development stack for [Ape Commerce](https://github.com/ApeCommerce) using [Dock
 | BullMQ Dashboard | Queues manager    |                  | [localhost:3014](http://localhost:3014) |
 | MailDev UI       | Mail box          |                  | [localhost:3015](http://localhost:3015) |
 
-## Setup
-
-To customize local ports, create a `.env` file:
-
-```
-cp .env.sample .env
-```
+## Development
 
 Deploy stack:
 
 ```
 docker compose up
 ```
-
-## Development
 
 Get a shell from the Node.js container:
 
